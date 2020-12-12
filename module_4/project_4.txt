@@ -1,0 +1,172 @@
+Задание 4.1
+SELECT ap.city,
+       COUNT (ap.airport_code)
+FROM dst_project.airports ap
+GROUP BY ap.city
+HAVING COUNT (ap.airport_code) > 1
+
+Задание 4.2.1
+SELECT COUNT (DISTINCT f.status)
+FROM dst_project.flights f
+
+Задание 4.2.2
+SELECT COUNT (f.status)
+FROM dst_project.flights f
+WHERE f.status = 'Departed'
+
+Задание 4.2.3
+SELECT COUNT (s.seat_no)
+FROM dst_project.aircrafts ac
+JOIN dst_project.seats s ON ac.aircraft_code = s.aircraft_code
+WHERE ac.model = 'Boeing 777-300'
+
+Задание 4.2.4
+SELECT count(f.flight_id)
+FROM dst_project.flights f
+WHERE f.status = 'Arrived'
+  AND f.actual_arrival BETWEEN '2017-4-1' AND '2017-8-31'
+
+Задание 4.3.1
+
+SELECT count(f.flight_id)
+FROM dst_project.flights f
+WHERE f.status = 'Cancelled'
+
+
+Задание 4.3.2
+SELECT ac.model
+FROM dst_project.aircrafts ac
+WHERE ac.model like '%Boeing%'
+
+
+Задание 4.3.2
+SELECT ac.model
+FROM dst_project.aircrafts ac
+WHERE ac.model like '%Sukhoi Superjet%'
+
+Задание 4.3.2
+SELECT ac.model
+FROM dst_project.aircrafts ac
+WHERE ac.model like '%Airbus%'
+
+Задание 4.3.3
+SELECT count(ap.timezone)
+FROM dst_project.airports ap
+WHERE ap.timezone like 'Europe%'
+Задание 4.3.4
+SELECT f.flight_id
+FROM dst_project.flights f
+ORDER BY f.scheduled_departure - f.actual_departure
+LIMIT 1
+
+Задание 4.4.1
+SELECT f.scheduled_departure
+FROM dst_project.flights f
+ORDER BY f.scheduled_departure
+LIMIT 1
+
+Задание 4.4.2
+SELECT date_part('hour', max(f.scheduled_arrival - f.scheduled_departure)) * 60 + date_part('minute', max(f.scheduled_arrival - f.scheduled_departure)) AS flight_time_mm
+FROM dst_project.flights f
+
+Задание 4.4.3
+SELECT f.departure_airport,
+       f.arrival_airport
+FROM dst_project.flights f
+WHERE (f.departure_airport = 'DME'
+       AND f.arrival_airport = 'UUS')
+  OR (f.departure_airport = 'DME'
+      AND f.arrival_airport = 'AAQ')
+  OR (f.departure_airport = 'DME'
+      AND f.arrival_airport = 'PCS')
+  OR (f.departure_airport = 'SVO'
+      AND f.arrival_airport = 'UUS')
+ORDER BY f.scheduled_arrival - f.scheduled_departure DESC
+LIMIT 1
+
+Задание 4.4.4
+SELECT date_part('hour', avg(f.scheduled_arrival - f.scheduled_departure)) * 60 + date_part('minute', avg(f.scheduled_arrival - f.scheduled_departure)) AS AVG_flight_time_mm
+FROM dst_project.flights f
+
+Задание 4.5.1
+SELECT s.fare_conditions
+FROM dst_project.seats s
+WHERE s.aircraft_code = 'SU9'
+GROUP BY s.fare_conditions
+ORDER BY count(s.seat_no) DESC
+LIMIT 1
+
+Задание 4.5.2
+SELECT min(bk.total_amount)
+FROM dst_project.bookings bk
+
+Задание 4.5.3
+SELECT bp.seat_no
+FROM dst_project.ticket_flights tf
+JOIN dst_project.tickets tk ON tf.ticket_no = tk.ticket_no
+JOIN dst_project.boarding_passes bp ON tf.ticket_no = bp.ticket_no
+WHERE tk.passenger_id = '4313 788533'
+
+Задание 5.1.1
+SELECT COUNT (f.flight_id)
+FROM dst_project.flights f
+JOIN dst_project.airports ap ON f.arrival_airport = ap.airport_code
+WHERE ap.city = 'Anapa'
+  AND f.actual_arrival BETWEEN '2017-1-1' AND '2017-12-31'
+
+Задание 5.1.2
+SELECT COUNT (f.flight_id)
+FROM dst_project.flights f
+JOIN dst_project.airports ap ON f. departure_airport = ap.airport_code
+WHERE ap.city = 'Anapa'
+  AND f.actual_departure BETWEEN '2017-1-1' AND '2017-12-31'
+  AND f.actual_departure NOT BETWEEN '2017-3-1' AND '2017-11-30'
+
+Задание 5.1.3
+SELECT COUNT (f.flight_id)
+FROM dst_project.flights f
+JOIN dst_project.airports ap ON f. departure_airport = ap.airport_code
+WHERE ap.city = 'Anapa'
+  AND f.status = 'Cancelled'
+
+Задание 5.1.4
+SELECT ac.model
+FROM dst_project.flights f
+JOIN dst_project.airports ap ON f.departure_airport = ap.airport_code
+JOIN dst_project.aircrafts ac ON f.aircraft_code = ac.aircraft_code
+JOIN dst_project.seats s ON ac.aircraft_code = s.aircraft_code
+WHERE ap.city = 'Anapa'
+GROUP BY ac.model
+ORDER BY COUNT (DISTINCT s.seat_no) DESC
+LIMIT 1
+
+
+
+
+
+
+ПРОЕКТ 4. АВИАРЕЙСЫ БЕЗ ПОТЕРЬ
+
+
+SELECT tf.flight_id,
+       f.departure_airport,
+       f.arrival_airport,
+       a.model,
+       f.actual_arrival - f.actual_departure AS flight_time_mm,
+       bk.book_date,
+       tf.fare_conditions,
+       tf.amount
+FROM dst_project.bookings bk
+JOIN dst_project.tickets tk ON bk.book_ref = tk.book_ref
+JOIN dst_project.ticket_flights tf ON tk.ticket_no = tf.ticket_no
+FULL OUTER JOIN dst_project.flights f ON tf.flight_id = f.flight_id -- full outer используется, чтобы попали строчки про рейсы в NOZ т.к. в таблице Tiket_flights отсутствует информация по этим рейсам
+
+JOIN dst_project.aircrafts a ON f.aircraft_code = a.aircraft_code
+WHERE f.departure_airport = 'AAQ'
+  AND (date_trunc('month', f.scheduled_departure) in ('2017-01-01',
+                                                      '2017-02-01',
+                                                      '2017-12-01'))
+  AND f.status not in ('Cancelled')
+ORDER BY tf.flight_id,
+         tf.amount DESC
+
