@@ -88,7 +88,7 @@ jupyter-core==4.6.3
 jupyter-highlight-selected-word @ file:///D:/bld/jupyter_highlight_selected_word_1603234417974/work
 jupyter-latex-envs @ file:///D:/bld/jupyter_latex_envs_1602789059680/work
 jupyter-nbextensions-configurator @ file:///D:/bld/jupyter_nbextensions_configurator_1602769732224/work
-jupyterlab==2.1.5
+jupyterlab==2.2.10
 jupyterlab-server @ file:///tmp/build/80754af9/jupyterlab_server_1594164409481/work
 keyring @ file:///C:/ci/keyring_1593109799227/work
 kiwisolver==1.2.0
